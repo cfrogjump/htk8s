@@ -28,23 +28,6 @@ kind: Service
 metadata:
   labels:
     app: htpc
-  name: emby
-  namespace: htpc
-spec:
-  ports:
-  - name: webui
-    port: 8096
-    protocol: TCP
-    targetPort: 8096
-  selector:
-    app: htpc
-    run: emby
----
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: htpc
   name: jackett
   namespace: htpc
 spec:
@@ -131,12 +114,12 @@ spec:
       containers:
       - env:
         - name: TZ
-          value: Pacific/Auckland
+          value: America/Denver
         - name: PUID
           value: "1000"
         - name: PGID
           value: "1000"
-        image: linuxserver/bazarr:arm32v6-latest
+        image: linuxserver/bazarr:arm32v7-latest
         name: bazarr
         ports:
         - containerPort: 6767
@@ -188,62 +171,7 @@ spec:
         fsGroup: 1000
       volumes:
       - hostPath:
-          path: /opt/htpc
-          type: DirectoryOrCreate
-        name: htpc-home
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  labels:
-    app: htpc
-    run: emby
-  name: emby
-  namespace: htpc
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: htpc
-      run: emby
-  template:
-    metadata:
-      labels:
-        app: htpc
-        run: emby
-    spec:
-      containers:
-      - env:
-        - name: TZ
-          value: Pacific/Auckland
-        - name: UID
-          value: "1000"
-        - name: GID
-          value: "1000"
-        image: emby/embyserver_arm32v7:latest
-        name: emby
-        ports:
-        - containerPort: 8096
-          name: webui
-          protocol: TCP
-        - containerPort: 8920
-          name: webui-ssl
-          protocol: TCP
-        volumeMounts:
-        - mountPath: /config
-          name: htpc-home
-          subPath: emby
-        - mountPath: /tv
-          name: htpc-home
-          subPath: media/tv
-        - mountPath: /movies
-          name: htpc-home
-          subPath: media/movies
-      securityContext:
-        fsGroup: 1000
-      volumes:
-      - hostPath:
-          path: /opt/htpc
+          path: /mnt/plex
           type: DirectoryOrCreate
         name: htpc-home
 ---
@@ -270,12 +198,12 @@ spec:
       containers:
       - env:
         - name: TZ
-          value: Pacific/Auckland
+          value: America/Denver
         - name: PUID
           value: "1000"
         - name: PGID
           value: "1000"
-        image: linuxserver/jackett:arm32v6-latest
+        image: linuxserver/jackett:arm32v7-latest
         name: jackett
         ports:
         - containerPort: 9117
@@ -305,7 +233,7 @@ spec:
         fsGroup: 1000
       volumes:
       - hostPath:
-          path: /opt/htpc
+          path: /mnt/plex
           type: DirectoryOrCreate
         name: htpc-home
 ---
@@ -332,12 +260,12 @@ spec:
       containers:
       - env:
         - name: TZ
-          value: Pacific/Auckland
+          value: America/Denver
         - name: PUID
           value: "1000"
         - name: PGID
           value: "1000"
-        image: linuxserver/radarr:arm32v6-latest
+        image: linuxserver/radarr:arm32v7-latest
         livenessProbe:
           exec:
             command:
@@ -403,7 +331,7 @@ spec:
         fsGroup: 1000
       volumes:
       - hostPath:
-          path: /opt/htpc
+          path: /mnt/plex
           type: DirectoryOrCreate
         name: htpc-home
 ---
@@ -430,12 +358,12 @@ spec:
       containers:
       - env:
         - name: TZ
-          value: Pacific/Auckland
+          value: America/Denver
         - name: PUID
           value: "1000"
         - name: PGID
           value: "1000"
-        image: linuxserver/sonarr:arm32v6-latest
+        image: linuxserver/sonarr:arm32v7-latest
         livenessProbe:
           exec:
             command:
@@ -501,7 +429,7 @@ spec:
         fsGroup: 1000
       volumes:
       - hostPath:
-          path: /opt/htpc
+          path: /mnt/plex
           type: DirectoryOrCreate
         name: htpc-home
 ---
@@ -528,7 +456,7 @@ spec:
       containers:
       - env:
         - name: TZ
-          value: Pacific/Auckland
+          value: America/Denver
         - name: PUID
           value: "1000"
         - name: PGID
@@ -537,7 +465,7 @@ spec:
           value: ""
         - name: HOST_WHITELIST
           value: ""
-        image: linuxserver/transmission:arm32v6-latest
+        image: linuxserver/transmission:arm32v7-latest
         name: transmission
         ports:
         - containerPort: 9091
@@ -581,7 +509,7 @@ spec:
         fsGroup: 1000
       volumes:
       - hostPath:
-          path: /opt/htpc
+          path: /mnt/plex
           type: DirectoryOrCreate
         name: htpc-home
 ---
@@ -596,13 +524,6 @@ spec:
   rules:
   - http:
       paths:
-      - backend:
-          service:
-            name: emby
-            port:
-              name: webui
-        path: /
-        pathType: Exact
       - backend:
           service:
             name: jackett
