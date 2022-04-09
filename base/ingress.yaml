@@ -6,13 +6,6 @@ spec:
   rules:
   - http:
       paths:
-      - path: /
-        pathType: Exact
-        backend:
-          service:
-            name: emby
-            port:
-              name: webui
       - path: /jackett
         pathType: Exact
         backend:

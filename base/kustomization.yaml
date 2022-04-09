@@ -13,7 +13,6 @@ resources:
 - sonarr.yaml
 - bazarr.yaml
 - transmission.yaml
-- emby.yaml
 - ingress.yaml
 
 patchesStrategicMerge:
